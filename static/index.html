@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Chainpoint to OTS converter</title>
+
+  <meta charset="UTF-8">
+  <meta name="description" content="Verify ownership and identity of Bitcoin addresses" />
+  <meta name="keywords" content="verify,Bitcoin,address,ownership,identity" />
+  <meta name="author" content="Woleet SAS" />
+
+  <!-- Latest compiled and minified Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+    crossorigin="anonymous">
+
+  <!-- Custom styles for this template -->
+  <link href="custom.css" rel="stylesheet">
+
+  <script type="application/javascript" src="main.js"></script>
+
+</head>
+
+<body>
+
+  <div class="page-header">
+    <div class="container">
+      <img src="https://btcproof.info/image/logo-woleet.png" />
+      <h1 style="color: #258C90;">
+        Chainpoint to OpenTimestamps converter
+        <br>
+        <small>Convert your Chainpoint 2 receipt to an OpenTimestamps one</small>
+      </h1>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <div>
+      <div class="form-group">
+        <div id="dz" class="dropZoneContainer">
+          <div class="text">Drop the file to convert</div>
+          <div class="text small"></div>
+          <input id="input" class="dropZone clickable" type="file" onchange="convert(this.files, this)">
+        </div>
+      </div>
+      <div id="helper"></div>
+      <div id="download" class="panel panel-success" hidden>
+        <div class="panel-heading">
+          <span class="glyphicon glyphicon-download-alt"></span>
+          <a>Download OTS proof</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  
+  <a href="https://github.com/woleet/chainpoint2ots" target="_blank">
+    <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67"
+      alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png">
+  </a>
+  <footer class="footer">
+    <div class="container">
+      <p class="text-muted" align="center">This tool is gracefully provided to
+        <a href="https://github.com/woleet/chainpoint2ots">
+          the community</a> by
+        <a href="https://woleet.io">Woleet</a>
+      </p>
+    </div>
+  </footer>
+</body>
+
+</html>

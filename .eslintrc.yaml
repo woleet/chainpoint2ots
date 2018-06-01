@@ -1,0 +1,149 @@
+env:
+  browser: true
+  node: true
+  commonjs: true
+  es6: true
+extends:
+- eslint-config-airbnb-base
+parserOptions:
+  ecmaVersion: 8
+root: true
+rules:
+  array-bracket-spacing:
+  - error
+  - never
+  arrow-parens:
+  - error
+  - always
+  arrow-spacing: error
+  block-spacing:
+  - error
+  - always
+  brace-style:
+  - error
+  - 1tbs
+  camelcase:
+  - warn
+  - properties: always
+  comma-dangle:
+  - error
+  - never
+  eol-last:
+  - error
+  - always
+  eqeqeq:
+  - error
+  - always
+  - 'null': ignore
+  func-name-matching: error
+  handle-callback-err: 'off'
+  linebreak-style:
+  - error
+  - unix
+  max-len:
+  - warn
+  - code: 120
+    ignorePattern: function \w+\(
+    ignoreUrls: true
+  max-statements-per-line:
+  - error
+  - max: 1
+  new-cap:
+  - error
+  - newIsCap: true
+    capIsNew: false
+  no-buffer-constructor: error
+  no-console: 'off'
+  no-extra-semi: 'off'
+  no-fallthrough: 'off'
+  no-func-assign: 'off'
+  no-implicit-coercion:
+  - 'off'
+  no-multi-assign: error
+  no-multiple-empty-lines:
+  - error
+  - max: 1
+  no-nested-ternary: error
+  # https://eslint.org/docs/rules/no-param-reassign
+  no-param-reassign: error
+  no-return-assign: warn
+  no-return-await: error
+  no-shadow-restricted-names: error
+  no-tabs: error
+  no-trailing-spaces: error
+  no-unused-vars:
+  - warn
+  - vars: all
+    args: none
+    ignoreRestSiblings: false
+  no-use-before-define:
+  - error
+  - functions: false
+    classes: false
+  no-var: error
+  nonblock-statement-body-position:
+  - error
+  - below
+  prefer-arrow-callback: warn
+  prefer-const:
+  - error
+  - destructuring: all
+    ignoreReadBeforeAssign: true
+  prefer-template: warn
+  quotes:
+  - error
+  - single
+  semi:
+  - error
+  - always
+  - omitLastInOneLineBlock: true
+  spaced-comment:
+  - error
+  - always
+  - exceptions:
+    - "!"
+  space-before-blocks: error
+  strict: 'off'
+  unicode-bom:
+  - error
+  - never
+  # https://eslint.org/docs/4.0.0/rules/wrap-iife
+  wrap-iife:
+  - error
+  - inside
+  # https://eslint.org/docs/rules/padded-blocks
+  padded-blocks:
+  - 'off'
+  keyword-spacing:
+  - error
+  - before: true
+    after: true
+  no-underscore-dangle: 'off'
+  object-curly-newline: 'off'
+  object-curly-spacing:
+  - error
+  - always
+  consistent-return: error
+  no-empty:
+  - error
+  - allowEmptyCatch: true
+  no-sequences: warn
+  func-names: 'off'
+  prefer-destructuring: 'off'
+  new-parens: 'off'
+  # https://eslint.org/docs/4.0.0/rules/curly
+  curly:
+  - error
+  - multi-or-nest
+  - consistent
+  operator-linebreak:
+  - error
+  - before
+  no-plusplus: 'off'
+  radix: 'off'
+  function-paren-newline: 'off'
+  # https://eslint.org/docs/4.0.0/rules/indent
+  indent:
+  - error
+  - 2
+  - SwitchCase: 1
