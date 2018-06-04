@@ -16,3 +16,7 @@ Chainpoint to OTS microservice
 
 ### Run:
     docker run --rm -p 3000:3000 chainpoint2ots
+
+## Environment:
+
+You can set the `HTTP_PORT` environment variable to listen on a specific port (default=3000).

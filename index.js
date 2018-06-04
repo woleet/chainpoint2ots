@@ -1,9 +1,12 @@
 
-const path = require('path');
+const assert = require('assert');
 const express = require('express');
 const { json } = require('body-parser');
 
 require('express-async-errors');
+
+const PORT = parseInt(process.env.HTTP_PORT || '3000');
+assert(Number.isInteger(PORT), `Invalid port "${process.env.HTTP_PORT}"`);
 
 const OpenTimestamps = require('javascript-opentimestamps');
 
@@ -82,32 +85,28 @@ app.post('/', async (req, res) => {
 
   const output = await Promise.all(promises.map(Tools.hardFail))
     .then(() => {
-      // Print attestations
-      const attestations = timestamp.getAttestations();
-      attestations.forEach((attestation) => {
-        console.log(`OTS attestation: ${attestation.toString()}`);
-      });
-
-      // Serialize
       const detached = new DetachedTimestampFile(new Ops.OpSHA256(), timestamp);
       const ctx = new Context.StreamSerialization();
       detached.serialize(ctx);
       return ctx.getOutput();
     })
-    .catch((err) => res.status(500).send(`Resolve attestation error: ${err}`));
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send(`Resolve attestation error: ${err && err.message}`);
+    });
 
-  res.setHeader('Content-type', 'application/octet-stream');
-
-  console.log({ output });
+  if (!output)
+    return null;
 
   const buffer = Buffer.from(output);
 
-  console.log({ buffer });
+  res.setHeader('Content-type', 'application/octet-stream');
+  res.setHeader('Content-Length', buffer.length);
 
   return res.send(buffer);
 });
 
-app.listen(3000, () => {
-  console.log('chainpoint2ots listening on port 3000!');
+app.listen(PORT, () => {
+  console.log(`chainpoint2ots listening on port ${PORT}!`);
 });
 
