@@ -1,3 +1,4 @@
+const { OTS_USE_BITCOIN } = require('./bitcoin-conf'); // Overriding javascript-opentimestamps configuration
 
 const assert = require('assert');
 const express = require('express');
@@ -5,7 +6,7 @@ const { json } = require('body-parser');
 
 require('express-async-errors');
 
-const PORT = parseInt(process.env.HTTP_PORT || '3000');
+const PORT = parseInt(process.env.OTS_HTTP_PORT || '3000');
 assert(Number.isInteger(PORT), `Invalid port "${process.env.HTTP_PORT}"`);
 
 const OpenTimestamps = require('javascript-opentimestamps');
@@ -35,8 +36,7 @@ app.post('/', async (req, res) => {
 
   // Check chainpoint file
   const CHAINPOINT_V2 = 'https://w3id.org/chainpoint/v2';
-  if (Array.isArray(context) ? !context.includes(CHAINPOINT_V2)
-    : context !== CHAINPOINT_V2)
+  if (Array.isArray(context) ? !context.includes(CHAINPOINT_V2) : context !== CHAINPOINT_V2)
     return res.status(400).send('Support only chainpoint v2');
 
   if (chainpoint.type !== 'ChainpointSHA256v2')
@@ -72,14 +72,13 @@ app.post('/', async (req, res) => {
   }
 
   // Resolve unknown attestations
-  const NO_BITCOIN = true;
   const promises = [];
   const stampsAttestations = timestamp.directlyVerified();
   stampsAttestations.forEach((subStamp) => {
     subStamp.attestations.forEach((attestation) => {
       console.log(`Find op_return: ${Tools.bytesToHex(attestation.payload)}`);
       const txHash = Tools.bytesToHex(attestation.payload);
-      promises.push(ConvertOTS.resolveAttestation(txHash, subStamp, NO_BITCOIN));
+      promises.push(ConvertOTS.resolveAttestation(txHash, subStamp, !OTS_USE_BITCOIN));
     });
   });
 
