@@ -1,4 +1,4 @@
-const { OTS_USE_BITCOIN } = require('./bitcoin-conf'); // Overriding javascript-opentimestamps configuration
+const { OTS_USE_BITCOIND } = require('./bitcoin-conf'); // Overriding javascript-opentimestamps configuration
 
 const assert = require('assert');
 const express = require('express');
@@ -78,7 +78,7 @@ app.post('/', async (req, res) => {
     subStamp.attestations.forEach((attestation) => {
       console.log(`Find op_return: ${Tools.bytesToHex(attestation.payload)}`);
       const txHash = Tools.bytesToHex(attestation.payload);
-      promises.push(ConvertOTS.resolveAttestation(txHash, subStamp, !OTS_USE_BITCOIN));
+      promises.push(ConvertOTS.resolveAttestation(txHash, subStamp, !OTS_USE_BITCOIND));
     });
   });
 

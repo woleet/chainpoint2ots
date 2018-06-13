@@ -3,11 +3,11 @@ const Bitcoin = require('./convert2ots/bitcoin');
 
 const env = process.env;
 
-assert(['true', 'false'].includes(env.OTS_USE_BITCOIN), 'OTS_USE_BITCOIN must be "true" or "false"');
+assert(['true', 'false'].includes(env.OTS_USE_BITCOIND), 'OTS_USE_BITCOIND must be "true" or "false"');
 
-const OTS_USE_BITCOIN = env.OTS_USE_BITCOIN === 'true';
+const OTS_USE_BITCOIND = env.OTS_USE_BITCOIND === 'true';
 
-if (OTS_USE_BITCOIN) {
+if (OTS_USE_BITCOIND) {
   const {
     OTS_BITCOIND_RPC_USER: rpcuser,
     OTS_BITCOIND_RPC_PASSWORD: rpcpassword,
@@ -28,4 +28,4 @@ if (OTS_USE_BITCOIN) {
   };
 }
 
-module.exports = { OTS_USE_BITCOIN };
+module.exports = { OTS_USE_BITCOIND };

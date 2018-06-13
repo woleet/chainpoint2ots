@@ -1,7 +1,8 @@
 {
-  "name": "chainpoint2ots",
+  "name": "@woleet/chainpoint2ots",
   "version": "1.0.0",
-  "description": "Chainpoint to OTS microservice",
+  "private": false,
+  "description": "Chainpoint to OTS converter",
   "main": "index.js",
   "scripts": {
     "start": "node .",
@@ -11,8 +12,8 @@
   "keywords": [
     "opentimestamps",
     "chainpoint",
-    "conversion",
-    "server"
+    "converter",
+    "microservice"
   ],
   "author": "Woleet",
   "license": "MIT",
@@ -30,5 +31,9 @@
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.12.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/woleet/chainpoint2ots.git"
   }
 }
