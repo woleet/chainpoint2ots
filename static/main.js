@@ -5,7 +5,12 @@ function postJson(url, data) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
-  }).then((res) => res.blob());
+  }).then((res) => {
+    if (res.status !== 200)
+      throw new Error(res.statusText);
+
+    return res.blob();
+  });
 }
 
 function readJson(file) {
