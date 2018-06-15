@@ -6,8 +6,12 @@ function postJson(url, data) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   }).then((res) => {
-    if (res.status !== 200)
-      throw new Error(res.statusText);
+    if (res.status !== 200) {
+      return res.text()
+        .then((text) => {
+          throw new Error(text);
+        });
+    }
 
     return res.blob();
   });

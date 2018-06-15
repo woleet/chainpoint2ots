@@ -60,7 +60,7 @@ app.post('/', async (req, res) => {
     timestamp = ConvertOTS.migrationMerkle(chainpoint.targetHash, chainpoint.proof);
     console.log(timestamp.strTree(0, 1));
   } catch (err) {
-    return res.status(500).send('Building error');
+    return res.status(500).send('Failed to migrate proof');
   }
 
   // Migrate attestation
@@ -68,7 +68,7 @@ app.post('/', async (req, res) => {
     ConvertOTS.migrationAttestations(chainpoint.anchors, timestamp);
     console.log(timestamp.strTree(0, 1));
   } catch (err) {
-    return res.status(500).send('Attestation error');
+    return res.status(500).send('Failed to migrate attestation');
   }
 
   // Resolve unknown attestations
@@ -91,7 +91,7 @@ app.post('/', async (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      res.status(500).send(`Resolve attestation error: ${err && err.message}`);
+      res.status(500).send('Failed to resolve attestation');
     });
 
   if (!output)
