@@ -80,7 +80,7 @@ async function convert(files) {
   dropZone.style.display = 'none';
 
   if (file.type !== 'application/json')
-    return display('Bad file type: expecting a json file.');
+    return display('Bad file type: expecting a Chainpoint 2 JSON file.');
 
   const chainpoint = await readJson(file);
 
@@ -95,5 +95,4 @@ async function convert(files) {
   } catch (err) {
     return display(err.message);
   }
-
 };
