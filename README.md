@@ -3,6 +3,13 @@
 This web app allows to convert Chainpoint 2 proofs to OpenTimestamps proofs, with a simple drag 'n drop.
 It is provided as a Web UI and a Node.js microservice (which is a wrapper around conversion code from https://github.com/opentimestamps/convert2ots.git).
 
+## Cloning the repository
+
+    git clone git@github.com:woleet/chainpoint2ots.git --recursive
+
+### If you already cloned it:
+    git submodule update --init --recursive
+
 ## Run using Node.js
 
 ### Install dependencies:
@@ -21,9 +28,10 @@ It is provided as a Web UI and a Node.js microservice (which is a wrapper around
 
 ## Configuration
 
-The `OTS_USE_BITCOIND` environment variable **must** be either `"true"` or `"false"`.
-If set to `"true"`, `OTS_BITCOIND_RPC_USER` and `OTS_BITCOIND_RPC_PASSWORD` must be defined.
-`OTS_BITCOIND_RPC_PORT` and `OTS_BITCOIND_RPC_CONNECT` can optionally be set (respectively defaulting to `8332` and `127.0.0.1`).
+The `OTS_USE_BITCOIND` environment variable **must** be either `"true"`, `"false"` or `"strict"`.
+<br>If set to `"true"` or `"strict"`, `OTS_BITCOIND_RPC_USER` and `OTS_BITCOIND_RPC_PASSWORD` must be defined.
+<br>`OTS_BITCOIND_RPC_PORT` and `OTS_BITCOIND_RPC_CONNECT` can optionally be set (respectively defaulting to `8332` and `127.0.0.1`).
+<br>If not set to `"strict"` the converter will (in case of failure) fallback on third party services instead of your bitcoin node.
 
 You can set the `OTS_HTTP_PORT` environment variable to listen on a specific port (default is `3000`).
 
