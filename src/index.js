@@ -7,7 +7,7 @@ const { json } = require('body-parser');
 
 require('express-async-errors');
 
-const convert = require('./converter');
+const convert = require('./libconvert');
 
 const PORT = parseInt(process.env.OTS_HTTP_PORT || '3000');
 assert(Number.isInteger(PORT), `Invalid port "${process.env.HTTP_PORT}"`);
