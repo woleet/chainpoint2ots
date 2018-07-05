@@ -7,6 +7,7 @@
  * @license LPGL3
  */
 
+const Tx = require('bcoin/lib/primitives/tx');
 const config = require('./bitcoin-conf');
 
 // Dependencies
@@ -160,9 +161,15 @@ function verify(txHash, timestamp, explorer) {
   return explorer.rawtx(txHash)
     .then((rawtx) => {
       const opReturn = Buffer.from(timestamp.msg).toString('hex');
+
+      const tx = Tx.fromRaw(Buffer.from(rawtx, 'hex'));
+      // remove witness of rawTx
+      rawtx = tx.frameNormal().data.toString('hex');
+
       const pos = rawtx.indexOf(opReturn);
+
       if (pos === -1)
-        throw String('Invalid tx');
+        throw new Error('Invalid tx');
 
       const append = hexToByteArray(rawtx.substring(0, pos));
       const prepend = hexToByteArray(rawtx.substring(pos + txHash.length, rawtx.length));
