@@ -1,5 +1,5 @@
 const assert = require('assert');
-const Bitcoin = require('../convert2ots/bitcoin');
+const Bitcoin = require('./bitcoin');
 
 const env = process.env;
 
@@ -7,6 +7,8 @@ assert(['true', 'false', 'strict'].includes(env.OTS_USE_BITCOIND), 'OTS_USE_BITC
 
 const OTS_STRICT_BITCOIND = env.OTS_USE_BITCOIND === 'strict';
 const OTS_USE_BITCOIND = env.OTS_USE_BITCOIND === 'true' || OTS_STRICT_BITCOIND;
+
+module.exports = { OTS_USE_BITCOIND, OTS_STRICT_BITCOIND };
 
 if (OTS_USE_BITCOIND) {
   const {
@@ -19,14 +21,10 @@ if (OTS_USE_BITCOIND) {
   assert(rpcuser, 'Missing env OTS_BITCOIND_RPC_USER');
   assert(rpcpassword, 'Missing env OTS_BITCOIND_RPC_PASSWORD');
 
-  Bitcoin.BitcoinNode.readBitcoinConf = async function () {
-    return {
-      rpcuser,
-      rpcpassword,
-      rpcport: rpcport || '8332',
-      rpcconnect: rpcconnect || '127.0.0.1'
-    };
+  module.exports.bitcoin = {
+    rpcuser,
+    rpcpassword,
+    rpcport: rpcport || '8332',
+    rpcconnect: rpcconnect || '127.0.0.1'
   };
 }
-
-module.exports = { OTS_USE_BITCOIND, OTS_STRICT_BITCOIND };

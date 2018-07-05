@@ -1,7 +1,5 @@
 'use strict';
 
-const config = require('./bitcoin-conf');
-
 /**
  * Tools module.
  * @module Utils
@@ -9,12 +7,13 @@ const config = require('./bitcoin-conf');
  * @license LPGL3
  */
 
+const config = require('./bitcoin-conf');
+
 // Dependencies
 const crypto = require('crypto');
 const OpenTimestamps = require('javascript-opentimestamps');
-const Insight = require('../convert2ots/insight.js');
-const Tools = require('../convert2ots/tools.js');
-const Bitcoin = require('../convert2ots/bitcoin.js');
+const Insight = require('./insight.js');
+const { BitcoinNode } = require('./bitcoin.js');
 
 // OpenTimestamps shortcuts
 const Timestamp = OpenTimestamps.Timestamp;
@@ -22,35 +21,34 @@ const Ops = OpenTimestamps.Ops;
 const Utils = OpenTimestamps.Utils;
 const Notary = OpenTimestamps.Notary;
 
-// Check chainpoint receipt
-function checkValidHeader(chainpoint) {
-  if (chainpoint['@context'] !== 'https://w3id.org/chainpoint/v2') {
-    console.error('Support only chainpoint v2');
-    return false;
-  }
-  if (chainpoint.type !== 'ChainpointSHA256v2') {
-    console.error('Support only ChainpointSHA256v2');
-    return false;
-  }
-  if (chainpoint.anchors === undefined) {
-    console.error('Support only timestamps with attestations');
-    return false;
-  }
-  return true;
-};
+/**
+ * @param {String} hex
+ * @returns number[]
+ */
+function hexToByteArray(hex) {
+  return Array.from(hexToBuffer(hex));
+}
+
+/**
+ * @param {String} hex
+ * @returns Buffer
+ */
+function hexToBuffer(hex) {
+  return Buffer.from(hex, 'hex');
+}
 
 // Migrate proofs
 function migrationMerkle(targetHash, proof) {
-  let timestamp = new Timestamp(Tools.hexToBytes(targetHash));
+  let timestamp = new Timestamp(hexToByteArray(targetHash));
   const tip = timestamp;
 
   for (let i = 0; i < proof.length; i++) {
     const item = proof[i];
     let op;
     if (item.left !== undefined)
-      op = new Ops.OpPrepend(Tools.hexToBytes(item.left));
+      op = new Ops.OpPrepend(hexToByteArray(item.left));
     else if (item.right !== undefined)
-      op = new Ops.OpAppend(Tools.hexToBytes(item.right));
+      op = new Ops.OpAppend(hexToByteArray(item.right));
 
     timestamp = timestamp.add(op);
     const opSHA256 = new Ops.OpSHA256();
@@ -107,7 +105,7 @@ function migrationAttestations(anchors, timestamp) {
     let attestation;
     if (anchor.type === 'BTCOpReturn') {
       const tag = [0x68, 0x7F, 0xE3, 0xFE, 0x79, 0x5E, 0x9A, 0x0D];
-      attestation = new Notary.UnknownAttestation(tag, Tools.hexToBytes(anchor.sourceId));
+      attestation = new Notary.UnknownAttestation(tag, hexToByteArray(anchor.sourceId));
       addAttestation(timestamp, attestation);
     }
   });
@@ -115,41 +113,32 @@ function migrationAttestations(anchors, timestamp) {
 
 // Bitcoin node verification
 function nodeVerify() {
-  return new Promise((resolve, reject) => {
-    Bitcoin.BitcoinNode.readBitcoinConf().then((properties) => {
-      const bitcoin = new Bitcoin.BitcoinNode(properties);
-      resolve(bitcoin);
-    }).catch((err) => {
-      reject(err);
-    });
-  });
+  return Promise.resolve(new BitcoinNode(config.bitcoin));
 };
 
 // Lite verification with Insight
 function liteVerify() {
-  return new Promise((resolve) => {
-    resolve(new Insight.MultiInsight());
-  });
+  return Promise.resolve(new Insight.MultiInsight());
 };
 
 // Resolve attestation
 function resolveAttestation(txHash, timestamp, noBitcoinNode) {
 
   if (noBitcoinNode) {
-    console.log('Bitcoin node verification');
+    console.log('Lite node verification');
     return liteVerify()
+      .then((explorer) => verify(txHash, timestamp, explorer))
       .catch((err) => {
-        console.log('Lite verification failure');
+        console.log('Lite verification failure', err);
         throw new Error('Lite verification failure');
-      })
-      .then((explorer) => verify(txHash, timestamp, explorer));
+      });
   }
 
   console.log('Bitcoin node verification');
   return nodeVerify()
     .then((explorer) => verify(txHash, timestamp, explorer))
     .catch((err) => {
-      console.log('Bitcoin node verification failure');
+      console.log('Bitcoin node verification failure', err);
       throw new Error('Bitcoin node verification failure');
     })
     .catch((err) => {
@@ -165,65 +154,61 @@ function resolveAttestation(txHash, timestamp, noBitcoinNode) {
 /* eslint-disable no-param-reassign */
 
 function verify(txHash, timestamp, explorer) {
-  return new Promise((resolve, reject) => {
-    explorer.rawtx(txHash)
-      .then((rawtx) => {
-        const opReturn = Tools.bytesToHex(timestamp.msg);
-        const pos = rawtx.indexOf(opReturn);
-        if (pos === -1)
-          throw String('Invalid tx');
 
-        const append = Tools.hexToBytes(rawtx.substring(0, pos));
-        const prepend = Tools.hexToBytes(rawtx.substring(pos + txHash.length, rawtx.length));
+  console.log('Verify', txHash);
 
-        let subStamp = timestamp.add(new Ops.OpPrepend(append));
-        subStamp = subStamp.add(new Ops.OpAppend(prepend));
-        subStamp = subStamp.add(new Ops.OpSHA256());
-        subStamp.add(new Ops.OpSHA256());
+  return explorer.rawtx(txHash)
+    .then((rawtx) => {
+      const opReturn = Buffer.from(timestamp.msg).toString('hex');
+      const pos = rawtx.indexOf(opReturn);
+      if (pos === -1)
+        throw String('Invalid tx');
 
-        return explorer.tx(txHash);
-      })
-      .then((tx) => explorer.block(tx.blockhash))
-      .then((block) => {
-        // Prepare digest tx list
-        const digests = [];
-        const merkleRoots = [];
-        block.tx.forEach((hash) => {
-          const bytes = Tools.hexToBytes(hash).reverse();
-          const digest = OpenTimestamps.DetachedTimestampFile.fromHash(new Ops.OpSHA256(), bytes);
-          merkleRoots.push(digest.timestamp);
-          digests.push(digest);
-        });
+      const append = hexToByteArray(rawtx.substring(0, pos));
+      const prepend = hexToByteArray(rawtx.substring(pos + txHash.length, rawtx.length));
 
-        // Build merkle tree
-        const merkleTip = makeMerkleTree(merkleRoots);
-        if (merkleTip === undefined)
-          throw String('Invalid merkle tree');
-        else if (!Tools.arrEq(merkleTip.msg, Tools.hexToBytes(block.merkleroot).reverse()))
-          throw String('Not match merkle tree');
+      let subStamp = timestamp.add(new Ops.OpPrepend(append));
+      subStamp = subStamp.add(new Ops.OpAppend(prepend));
+      subStamp = subStamp.add(new Ops.OpSHA256());
+      subStamp.add(new Ops.OpSHA256());
 
-        // Add bitcoin attestation
-        const attestation = new Notary.BitcoinBlockHeaderAttestation(block.height);
-        merkleTip.attestations.push(attestation);
-
-        // Check chainpoint anchor to merge
-        digests.forEach((digest) => {
-          if (Tools.arrEq(digest.timestamp.msg, Tools.hexToBytes(txHash).reverse())) {
-            timestamp.attestations = []; // Remove unknown attestation
-            let subStamp = timestamp.ops.values().next().value;
-            subStamp = subStamp.ops.values().next().value;
-            subStamp = subStamp.ops.values().next().value;
-            subStamp = subStamp.ops.values().next().value;
-            subStamp.ops = digest.timestamp.ops;
-          }
-        });
-        resolve();
-      })
-      .catch((err) => {
-        reject(err);
+      return explorer.tx(txHash);
+    })
+    .then((tx) => explorer.block(tx.blockhash))
+    .then((block) => {
+      // Prepare digest tx list
+      const digests = [];
+      const merkleRoots = [];
+      block.tx.forEach((hash) => {
+        const bytes = hexToByteArray(hash).reverse();
+        const digest = OpenTimestamps.DetachedTimestampFile.fromHash(new Ops.OpSHA256(), bytes);
+        merkleRoots.push(digest.timestamp);
+        digests.push(digest);
       });
-  });
 
+      // Build merkle tree
+      const merkleTip = makeMerkleTree(merkleRoots);
+      if (merkleTip === undefined)
+        throw String('Invalid merkle tree');
+      else if (!Utils.arrEq(merkleTip.msg, hexToByteArray(block.merkleroot).reverse()))
+        throw String('Not match merkle tree');
+
+      // Add bitcoin attestation
+      const attestation = new Notary.BitcoinBlockHeaderAttestation(block.height);
+      merkleTip.attestations.push(attestation);
+
+      // Check chainpoint anchor to merge
+      digests.forEach((digest) => {
+        if (Utils.arrEq(digest.timestamp.msg, hexToByteArray(txHash).reverse())) {
+          timestamp.attestations = []; // Remove unknown attestation
+          let subStamp = timestamp.ops.values().next().value;
+          subStamp = subStamp.ops.values().next().value;
+          subStamp = subStamp.ops.values().next().value;
+          subStamp = subStamp.ops.values().next().value;
+          subStamp.ops = digest.timestamp.ops;
+        }
+      });
+    });
 };
 
 function catThenUnaryOp(UnaryOpCls, left, right) {
@@ -282,13 +267,15 @@ function calculateMerkleRoot(targetHash, proof) {
       left = prev;
       right = item.right;
     }
-    prev = crypto.createHash('sha256').update(Tools.hexToString(left)).update(Tools.hexToString(right)).digest('hex');
+    prev = crypto.createHash('sha256')
+      .update(hexToBuffer(left))
+      .update(hexToBuffer(right))
+      .digest('hex');
   }
   return prev;
 };
 
 module.exports = {
-  checkValidHeader,
   migrationMerkle,
   makeMerkleTree,
   addAttestation,

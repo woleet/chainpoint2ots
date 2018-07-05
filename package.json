@@ -25,7 +25,8 @@
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
     "express-async-errors": "^2.1.2",
-    "javascript-opentimestamps": "^0.4.2"
+    "javascript-opentimestamps": "^0.4.2",
+    "request-promise": "^4.2.2"
   },
   "devDependencies": {
     "eslint": "^4.19.1",

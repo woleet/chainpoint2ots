@@ -59,6 +59,7 @@ app.post('/', async (req, res) => {
     timestamp = convert.migrationMerkle(chainpoint.targetHash, chainpoint.proof);
     console.log(timestamp.strTree(0, 1));
   } catch (err) {
+    console.error(err);
     return res.status(500).send('Failed to migrate proof');
   }
 
@@ -73,6 +74,7 @@ app.post('/', async (req, res) => {
   // Resolve unknown attestations
   const promises = [];
   const stampsAttestations = timestamp.directlyVerified();
+
   stampsAttestations.forEach((subStamp) => {
     subStamp.attestations.forEach((attestation) => {
       console.log(`Find op_return: ${Buffer.from(attestation.payload).toString('hex')}`);
