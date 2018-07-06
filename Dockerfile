@@ -15,7 +15,6 @@ RUN apk add --no-cache --virtual .build-deps \
 # Bundle app source
 COPY src /usr/src/app/src
 COPY static /usr/src/app/static
-COPY convert2ots /usr/src/app/convert2ots
 COPY index.js /usr/src/app/index.js
 
 EXPOSE 3000
