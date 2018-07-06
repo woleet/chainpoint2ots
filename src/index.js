@@ -57,7 +57,7 @@ app.post('/', async (req, res) => {
   let timestamp;
   try {
     timestamp = convert.migrationMerkle(chainpoint.targetHash, chainpoint.proof);
-    console.log(timestamp.strTree(0, 1));
+    // console.log(timestamp.strTree(0, 1));
   } catch (err) {
     console.error(err);
     return res.status(500).send('Failed to migrate proof');
@@ -66,7 +66,7 @@ app.post('/', async (req, res) => {
   // Migrate attestation
   try {
     convert.migrationAttestations(chainpoint.anchors, timestamp);
-    console.log(timestamp.strTree(0, 1));
+    // console.log(timestamp.strTree(0, 1));
   } catch (err) {
     return res.status(500).send('Failed to migrate attestation');
   }

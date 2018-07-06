@@ -155,9 +155,6 @@ function resolveAttestation(txHash, timestamp, noBitcoinNode) {
 /* eslint-disable no-param-reassign */
 
 function verify(txHash, timestamp, explorer) {
-
-  console.log('Verify', txHash);
-
   return explorer.rawtx(txHash)
     .then((rawtx) => {
       const opReturn = Buffer.from(timestamp.msg).toString('hex');

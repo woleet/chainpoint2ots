@@ -1,5 +1,4 @@
 const assert = require('assert');
-const Bitcoin = require('./bitcoin');
 
 const env = process.env;
 
