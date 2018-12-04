@@ -7,10 +7,11 @@ WORKDIR /usr/src/app
 # Install app dependencies
 COPY package.json /usr/src/app/
 
-RUN apk add --no-cache --virtual .build-deps \
-    git \
-    && npm i --production \
-    && apk del .build-deps
+RUN apk update && apk upgrade && \
+   apk add --no-cache --virtual .build-deps \
+   bash git python make g++ && \
+   npm i --production && \
+   apk del .build-deps
 
 # Bundle app source
 COPY src /usr/src/app/src
