@@ -1,18 +1,13 @@
-const { OTS_USE_BITCOIND } = require('./bitcoin-conf'); // Overriding javascript-opentimestamps configuration
-
+const OpenTimestamps = require('javascript-opentimestamps');
+const { json } = require('body-parser');
 const path = require('path');
 const assert = require('assert');
 const express = require('express');
-const { json } = require('body-parser');
-
-require('express-async-errors');
-
+const { OTS_USE_BITCOIND } = require('./bitcoin-conf'); // Overriding javascript-opentimestamps configuration
 const convert = require('./libconvert');
 
 const PORT = parseInt(process.env.OTS_HTTP_PORT || '3000');
 assert(Number.isInteger(PORT), `Invalid port "${process.env.HTTP_PORT}"`);
-
-const OpenTimestamps = require('javascript-opentimestamps');
 
 const Ops = OpenTimestamps.Ops;
 const Context = OpenTimestamps.Context;
@@ -30,19 +25,27 @@ app.post('/', async (req, res) => {
 
   const context = chainpoint['@context'] || chainpoint.context;
 
-  if (!context)
-    return res.status(400).send('Missing @context attribute');
+  if (!context) {
+    return res.status(400)
+      .send('Missing @context attribute');
+  }
 
   // Check chainpoint file
   const CHAINPOINT_V2 = 'https://w3id.org/chainpoint/v2';
-  if (Array.isArray(context) ? !context.includes(CHAINPOINT_V2) : context !== CHAINPOINT_V2)
-    return res.status(400).send('Support only chainpoint v2');
+  if (Array.isArray(context) ? !context.includes(CHAINPOINT_V2) : context !== CHAINPOINT_V2) {
+    return res.status(400)
+      .send('Support only Chainpoint v2');
+  }
 
-  if (chainpoint.type !== 'ChainpointSHA256v2')
-    return res.status(400).send('Support only ChainpointSHA256v2');
+  if (chainpoint.type !== 'ChainpointSHA256v2') {
+    return res.status(400)
+      .send('Support only ChainpointSHA256v2');
+  }
 
-  if (chainpoint.anchors === undefined)
-    return res.status(400).send('Support only timestamps with attestations');
+  if (chainpoint.anchors === undefined) {
+    return res.status(400)
+      .send('Support only timestamps with attestations');
+  }
 
   // Output information
   console.log(`File type: ${chainpoint.type}`);
@@ -50,8 +53,10 @@ app.post('/', async (req, res) => {
 
   // Check valid chainpoint merkle
   const merkleRoot = convert.calculateMerkleRoot(chainpoint.targetHash, chainpoint.proof);
-  if (merkleRoot !== chainpoint.merkleRoot)
-    return res.status(400).send('Invalid merkle root');
+  if (merkleRoot !== chainpoint.merkleRoot) {
+    return res.status(400)
+      .send('Invalid merkle root');
+  }
 
   // Migrate proof
   let timestamp;
@@ -60,7 +65,8 @@ app.post('/', async (req, res) => {
     // console.log(timestamp.strTree(0, 1));
   } catch (err) {
     console.error(err);
-    return res.status(500).send('Failed to migrate proof');
+    return res.status(500)
+      .send('Failed to migrate proof');
   }
 
   // Migrate attestation
@@ -68,7 +74,8 @@ app.post('/', async (req, res) => {
     convert.migrationAttestations(chainpoint.anchors, timestamp);
     // console.log(timestamp.strTree(0, 1));
   } catch (err) {
-    return res.status(500).send('Failed to migrate attestation');
+    return res.status(500)
+      .send('Failed to migrate attestation');
   }
 
   // Resolve unknown attestations
@@ -77,8 +84,10 @@ app.post('/', async (req, res) => {
 
   stampsAttestations.forEach((subStamp) => {
     subStamp.attestations.forEach((attestation) => {
-      console.log(`Find op_return: ${Buffer.from(attestation.payload).toString('hex')}`);
-      const txHash = Buffer.from(attestation.payload).toString('hex');
+      console.log(`Find op_return: ${Buffer.from(attestation.payload)
+        .toString('hex')}`);
+      const txHash = Buffer.from(attestation.payload)
+        .toString('hex');
       promises.push(convert.resolveAttestation(txHash, subStamp, !OTS_USE_BITCOIND));
     });
   });
@@ -92,11 +101,13 @@ app.post('/', async (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      res.status(500).send('Failed to resolve attestation');
+      res.status(500)
+        .send('Failed to resolve attestation');
     });
 
-  if (!output)
+  if (!output) {
     return null;
+  }
 
   const buffer = Buffer.from(output);
 
