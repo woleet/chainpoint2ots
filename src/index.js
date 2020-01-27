@@ -1,9 +1,9 @@
-const OpenTimestamps = require('javascript-opentimestamps');
+const OpenTimestamps = require('opentimestamps');
 const { json } = require('body-parser');
 const path = require('path');
 const assert = require('assert');
 const express = require('express');
-const { OTS_USE_BITCOIND } = require('./bitcoin-conf'); // Overriding javascript-opentimestamps configuration
+const { OTS_USE_BITCOIND } = require('./bitcoin-conf'); // Overriding opentimestamps configuration
 const convert = require('./libconvert');
 
 const PORT = parseInt(process.env.OTS_HTTP_PORT || '3000');

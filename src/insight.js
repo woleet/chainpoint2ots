@@ -29,7 +29,7 @@ const globOpts = {
   method: 'GET',
   headers: {
     Accept: 'application/json',
-    'User-Agent': 'javascript-opentimestamps',
+    'User-Agent': 'opentimestamps',
     'Content-Type': 'application/x-www-form-urlencoded'
   },
   json: true

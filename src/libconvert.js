@@ -12,7 +12,7 @@ const config = require('./bitcoin-conf');
 
 // Dependencies
 const crypto = require('crypto');
-const OpenTimestamps = require('javascript-opentimestamps');
+const OpenTimestamps = require('opentimestamps');
 const Insight = require('./insight.js');
 const { BitcoinNode } = require('./bitcoin.js');
 
